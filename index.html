@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Book Quotes & Recommendations</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+            transition: all 0.5s ease;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .book-quote {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 5px solid #667eea;
+        }
+
+        .quote-text {
+            font-size: 1.4em;
+            line-height: 1.6;
+            color: #2c3e50;
+            font-style: italic;
+            margin-bottom: 20px;
+        }
+
+        .quote-author {
+            text-align: right;
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.1em;
+        }
+
+        .book-recommendation {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .book-recommendation:hover {
+            transform: translateY(-5px);
+            border-color: #667eea;
+        }
+
+        .book-title {
+            font-size: 1.3em;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .book-author {
+            color: #6c757d;
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+
+        .book-description {
+            line-height: 1.6;
+            color: #495057;
+        }
+
+        .refresh-indicator {
+            text-align: center;
+            padding: 20px;
+            background: #e9ecef;
+            margin-top: 30px;
+            border-radius: 10px;
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+
+        .loading-bar {
+            height: 4px;
+            background: #667eea;
+            width: 0%;
+            transition: width 1s linear;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="loading-bar" id="loadingBar"></div>
+        
+        <div class="header">
+            <h1>📚 Literary Haven</h1>
+            <p>Discover new books and inspiring quotes updated regularly</p>
+        </div>
+
+        <div class="content">
+            <div class="book-quote fade-in" id="currentQuote">
+                <!-- Dynamic content will be loaded here -->
+            </div>
+
+            <div class="book-recommendation fade-in" id="bookRecommendation">
+                <!-- Dynamic content will be loaded here -->
+            </div>
+
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number" id="booksDisplayed">0</div>
+                    <div class="stat-label">Books Featured</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="quotesShown">0</div>
+                    <div class="stat-label">Quotes Shared</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="lastUpdate">0s</div>
+                    <div class="stat-label">Last Update</div>
+                </div>
+            </div>
+
+            <div class="refresh-indicator">
+                <p>New content loading in <span id="countdown">10</span> seconds...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Book database with real content
+        const bookDatabase = {
+            quotes: [
+                {
+                    text: "It is only with the heart that one can see rightly; what is essential is invisible to the eye.",
+                    author: "Antoine de Saint-Exupéry",
+                    book: "The Little Prince"
+                },
+                {
+                    text: "So we beat on, boats against the current, borne back ceaselessly into the past.",
+                    author: "F. Scott Fitzgerald",
+                    book: "The Great Gatsby"
+                },
+                {
+                    text: "It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife.",
+                    author: "Jane Austen",
+                    book: "Pride and Prejudice"
+                },
+                {
+                    text: "All happy families are alike; each unhappy family is unhappy in its own way.",
+                    author: "Leo Tolstoy",
+                    book: "Anna Karenina"
+                },
+                {
+                    text: "The only way out is through.",
+                    author: "Robert Frost",
+                    book: "A Servant to Servants"
+                },
+                {
+                    text: "There is no greater agony than bearing an untold story inside you.",
+                    author: "Maya Angelou",
+                    book: "I Know Why the Caged Bird Sings"
+                }
+            ],
+            
+            recommendations: [
+                {
+                    title: "Project Hail Mary",
+                    author: "Andy Weir",
+                    description: "A lone astronaut must save the earth from disaster in this high-stakes sci-fi thriller filled with humor and scientific wonder."
+                },
+                {
+                    title: "The Midnight Library",
+                    author: "Matt Haig",
+                    description: "Between life and death there is a library, and within that library, the shelves go on forever. Every book provides a chance to try another life you could have lived."
+                },
+                {
+                    title: "Klara and the Sun",
+                    author: "Kazuo Ishiguro",
+                    description: "From her place in the store, Klara, an Artificial Friend with outstanding observational qualities, watches carefully the behavior of those who come in to browse."
+                },
+                {
+                    title: "The Invisible Life of Addie LaRue",
+                    author: "V.E. Schwab",
+                    description: "A life no one will remember. A story you will never forget. A desperate young woman makes a Faustian bargain to live forever and is cursed to be forgotten by everyone she meets."
+                },
+                {
+                    title: "Pachinko",
+                    author: "Min Jin Lee",
+                    description: "A sweeping saga of an exceptional family in exile from their homeland and caught in the indifferent arc of history."
+                },
+                {
+                    title: "Circe",
+                    author: "Madeline Miller",
+                    description: "In the house of Helios, god of the sun and mightiest of the Titans, a daughter is born. But Circe is a strange child - not powerful, like her father, nor viciously alluring like her mother."
+                }
+            ]
+        };
+
+        let booksDisplayedCount = 0;
+        let quotesShownCount = 0;
+        let lastUpdateTime = 0;
+
+        // Function to get random item from array
+        function getRandomItem(array) {
+            return array[Math.floor(Math.random() * array.length)];
+        }
+
+        // Function to update content
+        function updateContent() {
+            // Reset loading bar
+            document.getElementById('loadingBar').style.width = '0%';
+            
+            // Animate loading bar
+            setTimeout(() => {
+                document.getElementById('loadingBar').style.width = '100%';
+            }, 100);
+
+            // Get random content
+            const randomQuote = getRandomItem(bookDatabase.quotes);
+            const randomRecommendation = getRandomItem(bookDatabase.recommendations);
+
+            // Update quote section
+            document.getElementById('currentQuote').innerHTML = `
+                <div class="quote-text">"${randomQuote.text}"</div>
+                <div class="quote-author">— ${randomQuote.author}, ${randomQuote.book}</div>
+            `;
+
+            // Update recommendation section
+            document.getElementById('bookRecommendation').innerHTML = `
+                <div class="book-title">${randomRecommendation.title}</div>
+                <div class="book-author">by ${randomRecommendation.author}</div>
+                <div class="book-description">${randomRecommendation.description}</div>
+            `;
+
+            // Update counters
+            booksDisplayedCount++;
+            quotesShownCount++;
+            lastUpdateTime = 0;
+
+            document.getElementById('booksDisplayed').textContent = booksDisplayedCount;
+            document.getElementById('quotesShown').textContent = quotesShownCount;
+            document.getElementById('lastUpdate').textContent = '0s';
+
+            // Add fade-in animation
+            document.getElementById('currentQuote').classList.add('fade-in');
+            document.getElementById('bookRecommendation').classList.add('fade-in');
+
+            // Remove animation class after it completes
+            setTimeout(() => {
+                document.getElementById('currentQuote').classList.remove('fade-in');
+                document.getElementById('bookRecommendation').classList.remove('fade-in');
+            }, 800);
+        }
+
+        // Function to start countdown
+        function startCountdown() {
+            const countdownElement = document.getElementById('countdown');
+            const refreshTime = Math.floor(Math.random() * 6) + 5; // Random between 5-10 seconds
+            
+            let timeLeft = refreshTime;
+            countdownElement.textContent = timeLeft;
+
+            const countdownInterval = setInterval(() => {
+                timeLeft--;
+                lastUpdateTime++;
+                
+                countdownElement.textContent = timeLeft;
+                document.getElementById('lastUpdate').textContent = lastUpdateTime + 's';
+
+                if (timeLeft <= 0) {
+                    clearInterval(countdownInterval);
+                    updateContent();
+                    setTimeout(startCountdown, 100); // Start new countdown after update
+                }
+            }, 1000);
+        }
+
+        // Simulate human behavior - random mouse movements
+        function simulateHumanBehavior() {
+            setInterval(() => {
+                if (Math.random() > 0.7) { // 30% chance to simulate activity
+                    const randomX = Math.random() * window.innerWidth;
+                    const randomY = Math.random() * window.innerHeight;
+                    
+                    const mouseEvent = new MouseEvent('mousemove', {
+                        clientX: randomX,
+                        clientY: randomY,
+                        bubbles: true
+                    });
+                    
+                    document.dispatchEvent(mouseEvent);
+                }
+            }, 2000);
+        }
+
+        // Initialize the page
+        function initialize() {
+            updateContent();
+            startCountdown();
+            simulateHumanBehavior();
+            
+            // Add real scroll behavior
+            let scrollPosition = 0;
+            setInterval(() => {
+                if (Math.random() > 0.5) {
+                    scrollPosition += (Math.random() * 100 - 50);
+                    scrollPosition = Math.max(0, Math.min(scrollPosition, document.body.scrollHeight - window.innerHeight));
+                    window.scrollTo({ top: scrollPosition, behavior: 'smooth' });
+                }
+            }, 3000);
+        }
+
+        // Start everything when page loads
+        window.addEventListener('load', initialize);
+
+        // Add real user interaction tracking
+        document.addEventListener('click', () => {
+            // Real user interaction - could be used for analytics
+            console.log('User interacted with the page');
+        });
+
+        document.addEventListener('mousemove', () => {
+            // Track real mouse movements
+        });
+    </script>
+</body>
+</html>
