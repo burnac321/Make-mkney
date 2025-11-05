@@ -8,6 +8,9 @@
     <!-- Pop-under Ad Script -->
     <script type='text/javascript' src='//pl27990490.effectivegatecpm.com/80/9f/60/809f60fa98ec9fee7d30998c135d695e.js'></script>
     
+    <!-- Banner Ad Script -->
+    <script async="async" data-cfasync="false" src="//pl27990571.effectivegatecpm.com/e2cd4f44e444736942b9546b7f90fad3/invoke.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -162,7 +165,7 @@
             border-radius: 10px;
             text-align: center;
             border: 1px solid #e9ecef;
-            min-height: 100px;
+            min-height: 90px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -193,27 +196,17 @@
         </div>
 
         <div class="content">
-            <!-- Ad Container 1: Top Banner -->
-            <div class="ad-container" id="topAdContainer">
-                <div class="ad-placeholder">Loading Ad...</div>
+            <!-- Banner Ad Container -->
+            <div class="ad-container">
+                <div id="container-e2cd4f44e444736942b9546b7f90fad3"></div>
             </div>
 
             <div class="book-quote fade-in" id="currentQuote">
                 <!-- Dynamic content will be loaded here -->
             </div>
 
-            <!-- Ad Container 2: Middle Banner -->
-            <div class="ad-container" id="middleAdContainer">
-                <div class="ad-placeholder">Loading Ad...</div>
-            </div>
-
             <div class="book-recommendation fade-in" id="bookRecommendation">
                 <!-- Dynamic content will be loaded here -->
-            </div>
-
-            <!-- Ad Container 3: Bottom Banner -->
-            <div class="ad-container" id="bottomAdContainer">
-                <div class="ad-placeholder">Loading Ad...</div>
             </div>
 
             <div class="stats">
@@ -230,8 +223,8 @@
                     <div class="stat-label">Last Update</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-number" id="adRefreshes">0</div>
-                    <div class="stat-label">Ads Refreshed</div>
+                    <div class="stat-number" id="pageViews">1</div>
+                    <div class="stat-label">Page Views</div>
                 </div>
             </div>
 
@@ -314,121 +307,32 @@
         let booksDisplayedCount = 0;
         let quotesShownCount = 0;
         let lastUpdateTime = 0;
-        let adRefreshesCount = 0;
+        let pageViewsCount = 1;
 
         // Function to get random item from array
         function getRandomItem(array) {
             return array[Math.floor(Math.random() * array.length)];
         }
 
-        // Function to load ad scripts dynamically
-        function loadAdScripts() {
-            return new Promise((resolve) => {
-                try {
-                    // Remove existing ad script if it exists
-                    const existingScript = document.querySelector('script[src*="effectivegatecpm.com/e2cd4f44e444736942b9546b7f90fad3"]');
-                    if (existingScript) {
-                        existingScript.remove();
-                    }
-
-                    // Create new ad script
-                    const script = document.createElement('script');
-                    script.async = true;
-                    script.setAttribute('data-cfasync', 'false');
-                    script.src = '//pl27990571.effectivegatecpm.com/e2cd4f44e444736942b9546b7f90fad3/invoke.js';
-                    
-                    script.onload = function() {
-                        console.log('Ad script loaded successfully');
-                        initializeAdContainers();
-                        resolve(true);
-                    };
-                    
-                    script.onerror = function() {
-                        console.log('Failed to load ad script');
-                        resolve(false);
-                    };
-                    
-                    document.head.appendChild(script);
-                    
-                } catch (error) {
-                    console.log('Error loading ad script:', error);
-                    resolve(false);
-                }
-            });
-        }
-
-        // Function to initialize ad containers with unique IDs
-        function initializeAdContainers() {
-            const timestamp = Date.now();
+        // Function to completely reload the page (simulate new visitor)
+        function reloadEntirePage() {
+            // Show loading state
+            document.getElementById('loadingBar').style.width = '100%';
             
-            // Top Ad Container
-            const topContainer = document.getElementById('topAdContainer');
-            topContainer.innerHTML = `<div id="container-top-ad-${timestamp}"></div>`;
+            // Update page views counter
+            pageViewsCount++;
+            document.getElementById('pageViews').textContent = pageViewsCount;
             
-            // Middle Ad Container
-            const middleContainer = document.getElementById('middleAdContainer');
-            middleContainer.innerHTML = `<div id="container-middle-ad-${timestamp}"></div>`;
-            
-            // Bottom Ad Container
-            const bottomContainer = document.getElementById('bottomAdContainer');
-            bottomContainer.innerHTML = `<div id="container-bottom-ad-${timestamp}"></div>`;
-            
-            // Try to invoke the ads
-            setTimeout(() => {
-                try {
-                    if (typeof window.invoke !== 'undefined') {
-                        window.invoke();
-                    }
-                } catch (error) {
-                    console.log('Ad invoke error:', error);
-                }
-            }, 1000);
-            
-            adRefreshesCount++;
-            document.getElementById('adRefreshes').textContent = adRefreshesCount;
-        }
-
-        // Function to trigger pop-under
-        function triggerPopUnder() {
-            try {
-                console.log('Pop-under triggered at:', new Date().toLocaleTimeString());
-                
-                // Simulate pop-under behavior
-                if (Math.random() > 0.5) {
-                    setTimeout(() => {
-                        const popup = window.open('', '_blank', 'width=300,height=400,left=100,top=100');
-                        if (popup) {
-                            popup.blur();
-                            window.focus();
-                        }
-                    }, 1500);
-                }
-            } catch (error) {
-                console.log('Pop-under error:', error);
-            }
-        }
-
-        // Function to update content and reload ads
-        async function updateContent() {
-            // Reset loading bar
-            document.getElementById('loadingBar').style.width = '0%';
-            
-            // Animate loading bar
-            setTimeout(() => {
-                document.getElementById('loadingBar').style.width = '100%';
-            }, 100);
-
-            // Get random content
+            // Get completely new random content
             const randomQuote = getRandomItem(bookDatabase.quotes);
             const randomRecommendation = getRandomItem(bookDatabase.recommendations);
 
-            // Update quote section
+            // Update all content with fade animation
             document.getElementById('currentQuote').innerHTML = `
                 <div class="quote-text">"${randomQuote.text}"</div>
                 <div class="quote-author">— ${randomQuote.author}, ${randomQuote.book}</div>
             `;
 
-            // Update recommendation section
             document.getElementById('bookRecommendation').innerHTML = `
                 <div class="book-title">${randomRecommendation.title}</div>
                 <div class="book-author">by ${randomRecommendation.author}</div>
@@ -444,15 +348,10 @@
             document.getElementById('quotesShown').textContent = quotesShownCount;
             document.getElementById('lastUpdate').textContent = '0s';
 
-            // Reload ads with content update
-            await loadAdScripts();
+            // RELOAD ADS COMPLETELY - This is the key fix
+            reloadAllAds();
             
-            // Random chance to trigger pop-under on content update
-            if (Math.random() > 0.7) {
-                triggerPopUnder();
-            }
-
-            // Add fade-in animation
+            // Add fade-in animation to all elements
             document.getElementById('currentQuote').classList.add('fade-in');
             document.getElementById('bookRecommendation').classList.add('fade-in');
 
@@ -460,10 +359,91 @@
             setTimeout(() => {
                 document.getElementById('currentQuote').classList.remove('fade-in');
                 document.getElementById('bookRecommendation').classList.remove('fade-in');
+                document.getElementById('loadingBar').style.width = '0%';
             }, 800);
+
+            // Randomly open new tabs (30% chance)
+            if (Math.random() > 0.7) {
+                openNewTab();
+            }
         }
 
-        // Function to start countdown
+        // Function to reload all ads completely
+        function reloadAllAds() {
+            try {
+                // Remove existing ad containers and scripts
+                const existingAdScript = document.querySelector('script[src*="effectivegatecpm.com/e2cd4f44e444736942b9546b7f90fad3"]');
+                if (existingAdScript) {
+                    existingAdScript.remove();
+                }
+
+                // Clear ad container
+                const adContainer = document.querySelector('.ad-container');
+                adContainer.innerHTML = '<div class="ad-placeholder">Loading New Ad...</div>';
+
+                // Create completely new ad script
+                setTimeout(() => {
+                    const newScript = document.createElement('script');
+                    newScript.async = true;
+                    newScript.setAttribute('data-cfasync', 'false');
+                    newScript.src = '//pl27990571.effectivegatecpm.com/e2cd4f44e444736942b9546b7f90fad3/invoke.js';
+                    
+                    newScript.onload = function() {
+                        console.log('New ad script loaded completely');
+                        // Create new container with unique ID
+                        const uniqueId = 'container-' + Date.now();
+                        adContainer.innerHTML = `<div id="${uniqueId}"></div>`;
+                    };
+                    
+                    newScript.onerror = function() {
+                        console.log('Failed to load new ad script');
+                        adContainer.innerHTML = '<div class="ad-placeholder">Ad Loading Failed</div>';
+                    };
+                    
+                    document.head.appendChild(newScript);
+                }, 500);
+                
+            } catch (error) {
+                console.log('Error reloading ads:', error);
+            }
+        }
+
+        // Function to open new tabs (simulate user behavior)
+        function openNewTab() {
+            try {
+                // 50% chance to open same page in new tab, 50% chance to open different URL
+                if (Math.random() > 0.5) {
+                    // Open same page in new tab
+                    window.open(window.location.href, '_blank');
+                    console.log('Opened same page in new tab');
+                } else {
+                    // Open external URL (could be your other pages)
+                    const urls = [
+                        'https://www.google.com',
+                        'https://www.amazon.com',
+                        window.location.href + '?ref=internal'
+                    ];
+                    const randomUrl = urls[Math.floor(Math.random() * urls.length)];
+                    window.open(randomUrl, '_blank');
+                    console.log('Opened external page:', randomUrl);
+                }
+            } catch (error) {
+                console.log('Tab opening blocked by browser:', error);
+            }
+        }
+
+        // Function to trigger pop-under
+        function triggerPopUnder() {
+            try {
+                console.log('Pop-under triggered');
+                // Your pop-under script should handle this automatically
+                // This is just for logging
+            } catch (error) {
+                console.log('Pop-under error:', error);
+            }
+        }
+
+        // Function to start countdown for full page reload
         function startCountdown() {
             const countdownElement = document.getElementById('countdown');
             const refreshTime = Math.floor(Math.random() * 6) + 5; // Random between 5-10 seconds
@@ -480,7 +460,9 @@
 
                 if (timeLeft <= 0) {
                     clearInterval(countdownInterval);
-                    updateContent();
+                    // RELOAD ENTIRE PAGE CONTENT
+                    reloadEntirePage();
+                    // Start new countdown
                     setTimeout(startCountdown, 100);
                 }
             }, 1000);
@@ -488,6 +470,7 @@
 
         // Simulate human behavior
         function simulateHumanBehavior() {
+            // Random mouse movements
             setInterval(() => {
                 if (Math.random() > 0.7) {
                     const randomX = Math.random() * window.innerWidth;
@@ -502,20 +485,8 @@
                     document.dispatchEvent(mouseEvent);
                 }
             }, 2000);
-        }
 
-        // Initialize the page
-        async function initialize() {
-            // Load initial ads
-            await loadAdScripts();
-            updateContent();
-            startCountdown();
-            simulateHumanBehavior();
-            
-            // Trigger initial pop-under
-            setTimeout(triggerPopUnder, 3000);
-            
-            // Add real scroll behavior
+            // Random scrolling
             let scrollPosition = 0;
             setInterval(() => {
                 if (Math.random() > 0.5) {
@@ -526,31 +497,37 @@
             }, 3000);
         }
 
+        // Initialize the page
+        function initialize() {
+            // Start the content reload cycle
+            startCountdown();
+            simulateHumanBehavior();
+            
+            // Trigger initial pop-under after 3 seconds
+            setTimeout(triggerPopUnder, 3000);
+            
+            // Also trigger pop-under on user clicks (20% chance)
+            document.addEventListener('click', function() {
+                if (Math.random() > 0.8) {
+                    triggerPopUnder();
+                }
+                // Also open new tab on some clicks (10% chance)
+                if (Math.random() > 0.9) {
+                    openNewTab();
+                }
+            });
+        }
+
         // Start everything when page loads
         window.addEventListener('load', initialize);
 
-        // Add real user interaction tracking
-        document.addEventListener('click', () => {
-            console.log('User interacted with the page');
-            
-            if (Math.random() > 0.8) {
-                triggerPopUnder();
+        // Additional: Randomly open new tabs every 30-60 seconds
+        setInterval(() => {
+            if (Math.random() > 0.7) { // 30% chance
+                openNewTab();
             }
-        });
-
-        // Force ad reload on visibility change
-        document.addEventListener('visibilitychange', function() {
-            if (!document.hidden) {
-                setTimeout(loadAdScripts, 1000);
-            }
-        });
-
-        // Additional ad reload trigger every 30 seconds as backup
-        setInterval(async () => {
-            console.log('Scheduled ad reload');
-            await loadAdScripts();
-        }, 30000);
+        }, 30000 + Math.random() * 30000);
 
     </script>
 </body>
-                </html>
+    </html>
