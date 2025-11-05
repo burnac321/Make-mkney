@@ -4,7 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily Book Quotes & Recommendations</title>
+    
+    <!-- Pop-under Ad Script -->
     <script type='text/javascript' src='//pl27990490.effectivegatecpm.com/80/9f/60/809f60fa98ec9fee7d30998c135d695e.js'></script>
+    
+    <!-- Banner Ad Script -->
+    <script async="async" data-cfasync="false" src="//pl27990571.effectivegatecpm.com/e2cd4f44e444736942b9546b7f90fad3/invoke.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -152,6 +158,15 @@
             color: #6c757d;
         }
 
+        .ad-container {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #e9ecef;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -172,12 +187,27 @@
         </div>
 
         <div class="content">
+            <!-- Ad Container 1: Top Banner -->
+            <div class="ad-container">
+                <div id="container-e2cd4f44e444736942b9546b7f90fad3"></div>
+            </div>
+
             <div class="book-quote fade-in" id="currentQuote">
                 <!-- Dynamic content will be loaded here -->
             </div>
 
+            <!-- Ad Container 2: Middle Banner -->
+            <div class="ad-container" id="middleAdContainer">
+                <div id="container-middle-ad"></div>
+            </div>
+
             <div class="book-recommendation fade-in" id="bookRecommendation">
                 <!-- Dynamic content will be loaded here -->
+            </div>
+
+            <!-- Ad Container 3: Bottom Banner -->
+            <div class="ad-container" id="bottomAdContainer">
+                <div id="container-bottom-ad"></div>
             </div>
 
             <div class="stats">
@@ -192,6 +222,10 @@
                 <div class="stat-item">
                     <div class="stat-number" id="lastUpdate">0s</div>
                     <div class="stat-label">Last Update</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="adRefreshes">0</div>
+                    <div class="stat-label">Ads Refreshed</div>
                 </div>
             </div>
 
@@ -274,10 +308,56 @@
         let booksDisplayedCount = 0;
         let quotesShownCount = 0;
         let lastUpdateTime = 0;
+        let adRefreshesCount = 0;
 
         // Function to get random item from array
         function getRandomItem(array) {
             return array[Math.floor(Math.random() * array.length)];
+        }
+
+        // Function to reload ad scripts
+        function reloadAdScripts() {
+            try {
+                // Remove existing ad containers
+                const middleAdContainer = document.getElementById('middleAdContainer');
+                const bottomAdContainer = document.getElementById('bottomAdContainer');
+                
+                // Create new ad containers
+                middleAdContainer.innerHTML = '<div id="container-middle-ad-' + Date.now() + '"></div>';
+                bottomAdContainer.innerHTML = '<div id="container-bottom-ad-' + Date.now() + '"></div>';
+                
+                // Reload the main ad script
+                const script = document.createElement('script');
+                script.async = true;
+                script.setAttribute('data-cfasync', 'false');
+                script.src = '//pl27990571.effectivegatecpm.com/e2cd4f44e444736942b9546b7f90fad3/invoke.js';
+                document.head.appendChild(script);
+                
+                adRefreshesCount++;
+                document.getElementById('adRefreshes').textContent = adRefreshesCount;
+                
+                console.log('Ad scripts reloaded successfully');
+            } catch (error) {
+                console.log('Error reloading ads:', error);
+            }
+        }
+
+        // Function to trigger pop-under (simulated)
+        function triggerPopUnder() {
+            try {
+                // This would typically be handled by your pop-under script
+                // For demonstration, we'll just log it
+                console.log('Pop-under triggered at:', new Date().toLocaleTimeString());
+                
+                // Simulate pop-under behavior (actual implementation depends on your ad network)
+                if (Math.random() > 0.5) { // 50% chance to simulate pop-under
+                    setTimeout(() => {
+                        window.open('', '_blank', 'width=300,height=400');
+                    }, 1000);
+                }
+            } catch (error) {
+                console.log('Pop-under error:', error);
+            }
         }
 
         // Function to update content
@@ -315,6 +395,14 @@
             document.getElementById('booksDisplayed').textContent = booksDisplayedCount;
             document.getElementById('quotesShown').textContent = quotesShownCount;
             document.getElementById('lastUpdate').textContent = '0s';
+
+            // Reload ads with content update
+            reloadAdScripts();
+            
+            // Random chance to trigger pop-under on content update
+            if (Math.random() > 0.7) { // 30% chance
+                triggerPopUnder();
+            }
 
             // Add fade-in animation
             document.getElementById('currentQuote').classList.add('fade-in');
@@ -374,6 +462,9 @@
             startCountdown();
             simulateHumanBehavior();
             
+            // Trigger initial pop-under
+            setTimeout(triggerPopUnder, 3000);
+            
             // Add real scroll behavior
             let scrollPosition = 0;
             setInterval(() => {
@@ -390,13 +481,28 @@
 
         // Add real user interaction tracking
         document.addEventListener('click', () => {
-            // Real user interaction - could be used for analytics
+            // Real user interaction
             console.log('User interacted with the page');
+            
+            // Random chance to trigger pop-under on click
+            if (Math.random() > 0.8) { // 20% chance on click
+                triggerPopUnder();
+            }
         });
 
         document.addEventListener('mousemove', () => {
             // Track real mouse movements
         });
+
+        // Handle page visibility changes (tab switching)
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                // Page became visible again - could trigger ads
+                if (Math.random() > 0.7) {
+                    reloadAdScripts();
+                }
+            }
+        });
     </script>
 </body>
-</html>
+    </html>
