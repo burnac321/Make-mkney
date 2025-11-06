@@ -274,8 +274,27 @@
             transform: scale(1.05);
         }
 
+        /* Close notification styles */
+        .close-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #e74c3c;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .close-notification.show {
+            display: block;
+        }
+
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(-20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
@@ -285,6 +304,11 @@
     </style>
 </head>
 <body>
+    <!-- Close notification -->
+    <div class="close-notification" id="closeNotification">
+        This tab will close in <span id="closeCountdown">3</span> seconds...
+    </div>
+
     <div class="container">
         <div class="loading-bar" id="loadingBar"></div>
         
@@ -363,6 +387,7 @@
         let autoOpenInterval = null;
         let reactionClickInterval = null;
         let adClickInterval = null;
+        let closeTabTimeout = null;
 
         // Function to toggle auto-click
         function toggleAutoClick() {
@@ -818,11 +843,44 @@
         function openNewTab() {
             try {
                 // Always open the same site in new tab
-                window.open(window.location.href, '_blank');
+                const newTab = window.open(window.location.href, '_blank');
                 console.log('Opened same page in new tab');
+                
+                // If tab was successfully opened, schedule parent tab to close
+                if (newTab && !newTab.closed) {
+                    scheduleParentTabClose();
+                }
             } catch (error) {
                 console.log('Tab opening blocked by browser:', error);
             }
+        }
+
+        // NEW: Function to schedule parent tab to close after 3 seconds
+        function scheduleParentTabClose() {
+            // Show notification
+            const notification = document.getElementById('closeNotification');
+            const countdownElement = document.getElementById('closeCountdown');
+            notification.classList.add('show');
+            
+            let secondsLeft = 3;
+            countdownElement.textContent = secondsLeft;
+            
+            // Start countdown
+            const countdownInterval = setInterval(() => {
+                secondsLeft--;
+                countdownElement.textContent = secondsLeft;
+                
+                if (secondsLeft <= 0) {
+                    clearInterval(countdownInterval);
+                    // Close the tab
+                    window.close();
+                }
+            }, 1000);
+            
+            // Set timeout to close tab
+            closeTabTimeout = setTimeout(() => {
+                window.close();
+            }, 3000);
         }
 
         // Function to trigger pop-under
@@ -951,7 +1009,6 @@
 
         // Start everything when page loads
         window.addEventListener('load', initialize);
-
     </script>
 </body>
-    </html>
+                    </html>
