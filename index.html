@@ -5,12 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily Book Quotes & Recommendations</title>
     
-    <!-- Pop-under Ad Script -->
-    <script type='text/javascript' src='//pl27990490.effectivegatecpm.com/80/9f/60/809f60fa98ec9fee7d30998c135d695e.js'></script>
-    
-    <!-- Banner Ad Script -->
-    <script async="async" data-cfasync="false" src="//pl27990571.effectivegatecpm.com/e2cd4f44e444736942b9546b7f90fad3/invoke.js"></script>
-    
     <style>
         * {
             margin: 0;
@@ -158,33 +152,29 @@
             color: #6c757d;
         }
 
-        .ad-container {
+        .click-container {
             margin: 20px 0;
             padding: 15px;
             background: #f8f9fa;
             border-radius: 10px;
-            text-align: center;
             border: 1px solid #e9ecef;
-            min-height: 90px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
         }
 
-        .ad-container:hover {
+        .click-container:hover {
             border-color: #667eea;
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
         }
 
-        .ad-container.clicked {
+        .click-container.clicked {
             border-color: #ff6b6b;
             background: #fff5f5;
             box-shadow: 0 0 20px rgba(255, 107, 107, 0.4);
         }
 
-        .ad-placeholder {
+        .click-placeholder {
             color: #6c757d;
             font-style: italic;
         }
@@ -293,6 +283,31 @@
             display: block;
         }
 
+        /* Website list styles */
+        .website-list {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .website-list h3 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .website-item {
+            display: inline-block;
+            background: white;
+            padding: 8px 15px;
+            margin: 5px;
+            border-radius: 20px;
+            border: 1px solid #e9ecef;
+            font-size: 0.9em;
+            color: #495057;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -318,6 +333,15 @@
         </div>
 
         <div class="content">
+            <!-- Website List -->
+            <div class="website-list">
+                <h3>Featured Websites</h3>
+                <div class="website-item">seop.pages.dev</div>
+                <div class="website-item">cmoney.pages.dev</div>
+                <div class="website-item">makemoneyz.pages.dev</div>
+                <div class="website-item">make-mkney.pages.dev</div>
+            </div>
+
             <!-- Auto-click Button -->
             <div class="auto-click-container">
                 <button class="auto-click-btn" id="autoClickBtn">
@@ -341,9 +365,9 @@
                 </button>
             </div>
 
-            <!-- Banner Ad Container -->
-            <div class="ad-container" id="adContainer">
-                <div id="container-e2cd4f44e444736942b9546b7f90fad3"></div>
+            <!-- Click Container -->
+            <div class="click-container" id="clickContainer">
+                <div class="click-placeholder">Click here to simulate interaction</div>
             </div>
 
             <div class="book-quote fade-in" id="currentQuote">
@@ -380,14 +404,27 @@
     </div>
 
     <script>
+        // List of target websites
+        const targetWebsites = [
+            "https://seop.pages.dev/",
+            "https://cmoney.pages.dev/", 
+            "https://makemoneyz.pages.dev/",
+            "https://make-mkney.pages.dev/"
+        ];
+
         // Auto-click functionality
         let autoClickInterval = null;
         let isAutoClickActive = false;
         let clickCount = 0;
         let autoOpenInterval = null;
         let reactionClickInterval = null;
-        let adClickInterval = null;
+        let containerClickInterval = null;
         let closeTabTimeout = null;
+
+        // Function to get random website
+        function getRandomWebsite() {
+            return targetWebsites[Math.floor(Math.random() * targetWebsites.length)];
+        }
 
         // Function to toggle auto-click
         function toggleAutoClick() {
@@ -433,7 +470,7 @@
             const actions = [
                 () => reloadEntirePage(),
                 () => simulateRandomClick(),
-                () => openNewTab(),
+                () => openRandomWebsite(),
                 () => triggerPopUnder()
             ];
             
@@ -459,7 +496,7 @@
                 '.book-quote',
                 '.book-recommendation',
                 '.stat-item',
-                '.ad-container'
+                '.click-container'
             ];
             
             const randomElement = clickableElements[Math.floor(Math.random() * clickableElements.length)];
@@ -478,7 +515,7 @@
             }
         }
 
-        // MODIFIED: Function to auto-open same page in new tab
+        // MODIFIED: Function to auto-open random website in new tab
         function startAutoOpen() {
             // Clear any existing interval
             if (autoOpenInterval) {
@@ -490,7 +527,7 @@
             console.log(`Auto-open scheduled in ${intervalTime/1000} seconds`);
             
             autoOpenInterval = setInterval(() => {
-                openNewTab();
+                openRandomWebsite();
                 
                 // Schedule next auto-open with new random interval
                 const nextInterval = Math.floor(Math.random() * 5000) + 10000;
@@ -499,9 +536,27 @@
                 // Reset the interval
                 clearInterval(autoOpenInterval);
                 autoOpenInterval = setInterval(() => {
-                    openNewTab();
+                    openRandomWebsite();
                 }, nextInterval);
             }, intervalTime);
+        }
+
+        // NEW: Function to open random website in new tab
+        function openRandomWebsite() {
+            try {
+                const randomWebsite = getRandomWebsite();
+                console.log(`Opening random website: ${randomWebsite}`);
+                
+                // Open random website in new tab
+                const newTab = window.open(randomWebsite, '_blank');
+                
+                // If tab was successfully opened, schedule parent tab to close
+                if (newTab && !newTab.closed) {
+                    scheduleParentTabClose();
+                }
+            } catch (error) {
+                console.log('Tab opening blocked by browser:', error);
+            }
         }
 
         // MODIFIED: Function to randomly click reaction buttons
@@ -590,16 +645,16 @@
             }
         }
 
-        // NEW: Function to perform realistic ad click
-        function performRealAdClick() {
-            const adContainer = document.getElementById('adContainer');
+        // NEW: Function to perform realistic click container click
+        function performRealContainerClick() {
+            const clickContainer = document.getElementById('clickContainer');
             
-            if (adContainer) {
+            if (clickContainer) {
                 // Add visual feedback
-                adContainer.classList.add('clicked');
+                clickContainer.classList.add('clicked');
                 
-                // Get ad container position for realistic click coordinates
-                const rect = adContainer.getBoundingClientRect();
+                // Get container position for realistic click coordinates
+                const rect = clickContainer.getBoundingClientRect();
                 
                 // Create realistic click sequence
                 const events = [
@@ -632,41 +687,41 @@
                 // Dispatch all events with small delays to simulate real click
                 events.forEach((event, index) => {
                     setTimeout(() => {
-                        adContainer.dispatchEvent(event);
+                        clickContainer.dispatchEvent(event);
                     }, index * 50);
                 });
                 
-                console.log('Real ad click performed');
+                console.log('Real container click performed');
                 
                 // Remove visual feedback after short delay
                 setTimeout(() => {
-                    adContainer.classList.remove('clicked');
+                    clickContainer.classList.remove('clicked');
                 }, 1000);
             }
         }
 
-        // MODIFIED: Function to start ad clicks - ALWAYS ENABLED
-        function startAdClicks() {
+        // MODIFIED: Function to start container clicks - ALWAYS ENABLED
+        function startContainerClicks() {
             // Clear any existing interval
-            if (adClickInterval) {
-                clearInterval(adClickInterval);
+            if (containerClickInterval) {
+                clearInterval(containerClickInterval);
             }
             
             // Set random interval between 5-10 seconds
             const intervalTime = Math.floor(Math.random() * 5000) + 5000; // 5-10 seconds
-            console.log(`Ad click scheduled in ${intervalTime/1000} seconds`);
+            console.log(`Container click scheduled in ${intervalTime/1000} seconds`);
             
-            adClickInterval = setInterval(() => {
-                performRealAdClick();
+            containerClickInterval = setInterval(() => {
+                performRealContainerClick();
                 
-                // Schedule next ad click with new random interval
+                // Schedule next container click with new random interval
                 const nextInterval = Math.floor(Math.random() * 5000) + 5000;
-                console.log(`Next ad click in ${nextInterval/1000} seconds`);
+                console.log(`Next container click in ${nextInterval/1000} seconds`);
                 
                 // Reset the interval
-                clearInterval(adClickInterval);
-                adClickInterval = setInterval(() => {
-                    performRealAdClick();
+                clearInterval(containerClickInterval);
+                containerClickInterval = setInterval(() => {
+                    performRealContainerClick();
                 }, nextInterval);
             }, intervalTime);
         }
@@ -783,9 +838,6 @@
             document.getElementById('booksDisplayed').textContent = booksDisplayedCount;
             document.getElementById('quotesShown').textContent = quotesShownCount;
             document.getElementById('lastUpdate').textContent = '0s';
-
-            // RELOAD ADS COMPLETELY - This is the key fix
-            reloadAllAds();
             
             // Add fade-in animation to all elements
             document.getElementById('currentQuote').classList.add('fade-in');
@@ -797,62 +849,6 @@
                 document.getElementById('bookRecommendation').classList.remove('fade-in');
                 document.getElementById('loadingBar').style.width = '0%';
             }, 800);
-        }
-
-        // Function to reload all ads completely
-        function reloadAllAds() {
-            try {
-                // Remove existing ad containers and scripts
-                const existingAdScript = document.querySelector('script[src*="effectivegatecpm.com/e2cd4f44e444736942b9546b7f90fad3"]');
-                if (existingAdScript) {
-                    existingAdScript.remove();
-                }
-
-                // Clear ad container
-                const adContainer = document.querySelector('.ad-container');
-                adContainer.innerHTML = '<div class="ad-placeholder">Loading New Ad...</div>';
-
-                // Create completely new ad script
-                setTimeout(() => {
-                    const newScript = document.createElement('script');
-                    newScript.async = true;
-                    newScript.setAttribute('data-cfasync', 'false');
-                    newScript.src = '//pl27990571.effectivegatecpm.com/e2cd4f44e444736942b9546b7f90fad3/invoke.js';
-                    
-                    newScript.onload = function() {
-                        console.log('New ad script loaded completely');
-                        // Create new container with unique ID
-                        const uniqueId = 'container-' + Date.now();
-                        adContainer.innerHTML = `<div id="${uniqueId}"></div>`;
-                    };
-                    
-                    newScript.onerror = function() {
-                        console.log('Failed to load new ad script');
-                        adContainer.innerHTML = '<div class="ad-placeholder">Ad Loading Failed</div>';
-                    };
-                    
-                    document.head.appendChild(newScript);
-                }, 500);
-                
-            } catch (error) {
-                console.log('Error reloading ads:', error);
-            }
-        }
-
-        // MODIFIED: Function to open new tabs - ONLY OPENS SAME SITE
-        function openNewTab() {
-            try {
-                // Always open the same site in new tab
-                const newTab = window.open(window.location.href, '_blank');
-                console.log('Opened same page in new tab');
-                
-                // If tab was successfully opened, schedule parent tab to close
-                if (newTab && !newTab.closed) {
-                    scheduleParentTabClose();
-                }
-            } catch (error) {
-                console.log('Tab opening blocked by browser:', error);
-            }
         }
 
         // NEW: Function to schedule parent tab to close after 3 seconds
@@ -978,9 +974,9 @@
                 }, 2000);
             });
             
-            // Set up ad container click listener
-            document.getElementById('adContainer').addEventListener('click', function() {
-                console.log('Ad container clicked');
+            // Set up click container listener
+            document.getElementById('clickContainer').addEventListener('click', function() {
+                console.log('Click container clicked');
             });
             
             // Start the content reload cycle
@@ -993,8 +989,8 @@
             // Start reaction button clicks (5-10 seconds)
             startReactionClicks();
             
-            // Start ad container clicks - ALWAYS ENABLED (5-10 seconds)
-            startAdClicks();
+            // Start container clicks - ALWAYS ENABLED (5-10 seconds)
+            startContainerClicks();
             
             // Trigger initial pop-under after 3 seconds
             setTimeout(triggerPopUnder, 3000);
@@ -1011,4 +1007,4 @@
         window.addEventListener('load', initialize);
     </script>
 </body>
-                    </html>
+</html>
